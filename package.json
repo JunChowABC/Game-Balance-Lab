@@ -1,0 +1,1 @@
+{"name":"game-balance-lab","version":"1.5.0","private":true,"type":"module","scripts":{"test":"node --test simulation.test.mjs"}}

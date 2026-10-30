@@ -1,0 +1,23 @@
+# Never commit real project workbooks or exports
+*.xlsx
+*.xlsm
+*.xls
+*.csv
+*.jsonl
+!examples/示例角色成长.xlsx
+
+# Private validation and local archives
+*_sample_report.json
+sample-validation.json
+*.zip
+*.log
+preview*.png
+
+# Build / editor / OS
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+__pycache__/
+.env
+.env.*

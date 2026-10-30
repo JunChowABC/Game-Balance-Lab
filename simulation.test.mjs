@@ -1,0 +1,13 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {parseExpression,evaluate,project,getSummary,csvRows,DEFAULT_FORMULA} from './dist/simulation.js';
+test('formula parser supports safe arithmetic and Excel columns',()=>{const ast=parseExpression('C*k + t*b');assert.equal(evaluate(ast,{c:100,k:1.2,t:2,b:10}),140);});
+test('function and precedence',()=>assert.equal(evaluate(parseExpression('max(0,2+3*4^2)'),{}),50));
+test('unary and parentheses',()=>assert.equal(evaluate(parseExpression('-(2+3)^2'),{}),-25));
+test('reject arbitrary JS and unknown functions',()=>{assert.throws(()=>parseExpression('process.exit(1)'));assert.throws(()=>parseExpression('eval(2)'));});
+test('no execution surface',()=>assert.throws(()=>parseExpression('y; alert(1)')));
+test('default retains original curve when parameters unchanged',()=>{const p=project([{x:1,y:100,row:4},{x:2,y:150,row:5}],{});assert.deepEqual(p.points.map(x=>x.projected),[100,150]);});
+test('scenario parameters change projection',()=>{const p=project([{x:1,y:100,row:4},{x:2,y:150,row:5}],{multiplier:1.1,delta:10,growth:0});assert.deepEqual(p.points.map(x=>x.projected),[110.00000000000001,175]);});
+test('formula can reference additional imported workbook columns',()=>{const p=project([{x:1,y:10,row:8}],{formula:'C * 2 + D'},()=>({c:100,d:30}));assert.equal(p.points[0].projected,230);});
+test('missing value reports row instead of silently guessing',()=>{const p=project([{x:1,y:10,row:9}],{formula:'D*2'});assert.equal(p.errors.length,1);assert.equal(p.points.length,0);});
+test('zero division produces transparent error',()=>{const p=project([{x:1,y:100,row:4}],{formula:'y/0'});assert.match(p.errors[0].reason,/分母为零/);});
+test('summary detects falls',()=>{const s=getSummary(project([{x:1,y:10,row:1},{x:2,y:9,row:2},{x:3,y:15,row:3}],{}).points);assert.equal(s.falls,1);});
+test('export includes 6 columns',()=>assert.equal(csvRows(project([{x:1,y:5,row:1}],{}).points)[0].length,6));
