@@ -57,7 +57,11 @@ dist/simulation.js            安全公式解析器和旧版单列推演
 dist/workbook-parser.js       Excel XLSX/XLSM 只读解析器
 dist/legacy.html              V1.5 单列推演归档入口
 dist/workbench.js             旧版控制器
-docs/使用说明_V1.6.html           新版 HTML 快速手册
+docs/使用说明_V1.6.html           完整 HTML 图文使用手册（16 章）
 simulation.test.mjs           旧版回归测试
 dependency.test.mjs           新增专项测试
 ```
+
+## 完整图文使用手册
+
+请打开 `docs/使用说明_V1.6.html`。包含从启动、Excel 导入、参数/公式配置到结果分析和排错的 16 章，以及虚构示例。
