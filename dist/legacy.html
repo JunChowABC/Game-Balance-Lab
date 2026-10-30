@@ -1,0 +1,46 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Game Balance Lab · 旧版单列推演（V1.5）</title><link rel="stylesheet" href="./app.css"></head><body>
+<div class="shell">
+<aside class="sidebar">
+ <div class="brand"><div class="brand-logo">◈</div><div><strong>GAME BALANCE LAB</strong><small>游戏数值推演工作台 · V1.5</small></div></div>
+ <div class="nav-caption">我的游戏项目 <span id="projectCount">0</span></div>
+ <button id="addProject" class="btn import-wide">＋ 导入项目 Excel</button>
+ <div id="projectList" class="project-list"></div>
+ <div class="side-bottom"><div class="side-help">使用流程</div><div class="side-step"><i>1</i>导入已有数值表</div><div class="side-step"><i>2</i>选择要推演的列</div><div class="side-step"><i>3</i>调参并对比曲线</div><p>工作簿仅保存在本机浏览器。不会上传服务器，也不执行宏。</p></div>
+</aside>
+<main class="main">
+ <header class="topbar"><div class="top-left"><span class="dot"></span> <span>数值推演</span><span class="slash">/</span><strong id="topProject">未选择项目</strong></div><div class="top-actions"><span class="offline">本地数据 · 离线分析</span><button class="btn secondary" id="exportConfig" disabled>导出方案</button><button class="btn primary" id="headerUpload">＋ 导入 Excel</button></div></header>
+ <input type="file" id="fileInput" accept=".xlsx,.xlsm" hidden>
+ <section id="empty" class="welcome"><div class="empty-mark">▤</div><div class="eyebrow">你的项目，就是你的数值模型</div><h1>导入现有 Excel，直接推演游戏数值。</h1><p>不需要转换为固定模板。选择任意 Sheet 的等级、属性或经济数据，调节参数，立即比较原始曲线与推演方案。</p><button class="btn primary large" id="emptyUpload">＋ 导入自己的数值工作簿</button><div class="welcome-hints"><span>✓ XLSX / XLSM</span><span>✓ 多工作表</span><span>✓ 自定义计算表达式</span><span>✓ 不改动原表</span></div></section>
+ <div id="workspace" hidden>
+  <section class="project-heading"><div><div class="eyebrow">CURRENT PROJECT · WHAT-IF WORKSPACE</div><h1 id="projectName">项目数值推演</h1><div class="subtitle" id="projectSubtitle">—</div></div><div class="heading-actions"><button class="btn secondary" id="renameProject">重命名</button><button class="btn secondary" id="removeProject">移除项目</button></div></section>
+  <div class="workflow-strip"><div class="workflow-item"><span>01</span> 选择数据源</div><div class="workflow-arrow">→</div><div class="workflow-item"><span>02</span> 设置推演规则</div><div class="workflow-arrow">→</div><div class="workflow-item"><span>03</span> 对比结果</div><div class="workflow-tip">所有步骤都在当前页面完成</div></div>
+  <div class="workgrid"><div class="controls-col">
+   <section class="card config"><div class="card-title"><span class="number">01</span><div><h2>从 Excel 选择数值</h2><p>选择要推演的成长、属性或经济指标</p></div></div>
+    <label class="field-label" for="sheetSelect">工作表 Sheet</label><select id="sheetSelect" class="field"></select>
+    <div class="twocol"><div><label class="field-label" for="xCol">横轴列 <span>等级 / 天数</span></label><input class="field" id="xCol" value="A" maxlength="4" list="columnHints"></div><div><label class="field-label" for="yCol">数值列 <span>战力 / 收益</span></label><input class="field" id="yCol" value="D" maxlength="4" list="columnHints"></div></div>
+    <div class="twocol"><div><label class="field-label" for="startRow">起始行</label><input class="field" id="startRow" type="number" min="1" value="4"></div><div><label class="field-label" for="endRow">结束行</label><input class="field" id="endRow" type="number" min="1" value="100"></div></div>
+    <datalist id="columnHints"></datalist><div class="map-preview" id="mapPreview">选取 Excel 数据后将展示对应的列标题与有效记录。</div>
+    <div id="columnSuggestions" class="column-suggestions"></div><button class="btn subtle wide" id="detectColumns">自动识别推荐列</button>
+   </section>
+   <section class="card config"><div class="card-title"><span class="number">02</span><div><h2>配置推演方案</h2><p>修改参数，图表实时计算</p></div></div>
+    <label class="field-label" for="rulePreset">推演规则</label><select id="rulePreset" class="field"><option value="combo">综合调整：倍率 + 增量 + 增长率</option><option value="scale">整体数值倍率</option><option value="linear">逐级固定增量</option><option value="growth">复合成长率</option><option value="custom">自定义表达式（高级）</option></select>
+    <div class="param-block"><div class="param-head"><label for="multiplier">整体倍率 k</label><div class="inline-number"><input type="number" id="multiplierNumber" min="0" max="10" step="0.05" value="1"><span>×</span></div></div><input type="range" id="multiplier" min="0" max="2.5" step="0.05" value="1"><div class="range-ends"><span>0×</span><span>2.5×</span></div></div>
+    <div class="param-block"><div class="param-head"><label for="delta">每单位额外增量 b</label><div class="inline-number"><input type="number" id="deltaNumber" step="1" value="0"><span>数值</span></div></div><input type="range" id="delta" min="-500" max="500" step="10" value="0"><div class="range-ends"><span>-500</span><span>+500</span></div></div>
+    <div class="param-block"><div class="param-head"><label for="growth">每单位复合增长 g</label><div class="inline-number"><input type="number" id="growthNumber" step="0.1" min="-30" max="30" value="0"><span>%</span></div></div><input type="range" id="growth" min="-10" max="10" step="0.1" value="0"><div class="range-ends"><span>-10%</span><span>+10%</span></div></div>
+    <div id="customWrap" hidden><label class="field-label" for="customFormula">计算表达式</label><textarea class="field formula" id="customFormula" rows="2" spellcheck="false">max(0, (y * k + t * b) * pow(1 + g / 100, t))</textarea><p class="formula-help">y=原数值；x=横轴；t=横轴距首项差；k/b/g=上方参数；C、D 等=当前行 Excel 列。支持 + - * / ^、min、max、pow、round、clamp 等。</p></div>
+    <div class="scenario-actions"><button class="btn subtle" id="resetScenario">恢复基准</button><button class="btn primary" id="applyScenario">↻ 运行推演</button></div>
+    <p class="model-notice">这里计算的是基于原始 Excel 数据的<strong>假设推演</strong>，并非重算 Excel 内所有公式。适用于快速验证成长趋势和调参敏感度。</p>
+   </section>
+  </div><div class="results-col">
+   <section class="metrics"><div class="metric"><span>有效数据点</span><strong id="metricCount">—</strong><small id="metricRange">—</small></div><div class="metric"><span>原始末项数值</span><strong id="metricBase">—</strong><small>Excel 已保存值</small></div><div class="metric"><span>推演末项数值</span><strong id="metricNext">—</strong><small>当前推演公式结果</small></div><div class="metric"><span>末项变化</span><strong id="metricDelta">—</strong><small id="metricDeltaSub">相对于原始数值</small></div></section>
+   <section class="card chart-panel"><div class="panel-title-row"><div><h2>成长趋势对比</h2><p id="chartDescription">选择数据后显示曲线</p></div><div class="legend"><span><i class="line base-line"></i>原始 Excel</span><span><i class="line scenario-line"></i>推演方案 B</span></div></div>
+    <div class="chart" id="chart"><div class="chart-empty">请先导入工作簿并选择要推演的数值列</div></div>
+    <div id="chartHover" class="chart-hover">选择横轴区间，查看不同参数对结果的影响。</div>
+   </section>
+   <div class="lower-grid"><section class="card diag-panel"><div class="panel-title-row"><div><h2>变化与异常提示</h2><p>候选风险，用于辅助策划复核</p></div><span class="tiny-tag" id="issueCount">—</span></div><div id="diagnostics" class="diagnostics">暂无分析结果</div></section><section class="card info-panel"><div class="panel-title-row"><div><h2>本次推演说明</h2><p>计算方式透明，可重复验证</p></div></div><div id="explain" class="explain">完成数值映射后自动生成说明。</div></section></div>
+   <section class="card table-panel"><div class="panel-title-row"><div><h2>逐级数值差异</h2><p>对照 Excel 原值与假设推演值</p></div><button class="btn secondary" id="exportCsv">导出 CSV</button></div><div class="table-wrap" id="resultsTable">暂无数据</div></section>
+  </div></div>
+  <details class="raw-area" id="rawDetails"><summary><span>▤ 原始 Excel 数据预览</span><span class="minor">辅助查看单元格与公式，不影响上方推演</span></summary><div class="raw-controls"><label>起始行 <input id="rawStart" type="number" min="1" value="1"></label><label>起始列 <input id="rawCol" value="A" maxlength="4"></label><button class="btn secondary" id="rawJump">跳转</button><span id="rawInfo"></span></div><div class="raw-table" id="rawGrid"></div><div id="rawSelection" class="raw-selection">点击单元格查看原值、公式和缓存结果。</div></details>
+  <footer class="footnote">Game Balance Lab V1.5 · 数值假设推演 · 不执行 VBA / 外链 · Excel 原文件不会被修改</footer>
+ </div>
+</main></div><div class="toast" id="toast" role="status" aria-live="polite"></div><script type="module" src="./workbench.js"></script></body></html>

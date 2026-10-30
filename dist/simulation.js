@@ -17,7 +17,7 @@ export function parseExpression(source){
     if(/^(?:\d|\.)/.test(t)){p++;const v=Number(t);if(!Number.isFinite(v))throw Error('非法数值');return {kind:'num',v};}
     if(/^[A-Za-z_]/.test(t)){
       p++;const name=t.toLowerCase();if(peek()==='('){p++;const args=[];if(peek()!==')'){while(true){args.push(add());if(peek()!==',')break;p++;}}eat(')');if(!Object.prototype.hasOwnProperty.call(allowedFns,name))throw Error(`不支持的函数：${t}`);if(args.length>8)throw Error('函数参数过多');return {kind:'call',name,args};}
-      if(!/^(x|y|t|k|b|g|[a-z]{1,3})$/.test(name))throw Error(`未知变量：${t}`);
+      if(!/^[a-z][a-z0-9_]{0,48}$/.test(name))throw Error(`未知变量：${t}`);
       return {kind:'var',name};}
     throw Error(`表达式无法解析：${t}`);
   }
